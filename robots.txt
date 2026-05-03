@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://scotia1973-bot.github.io/gadgethumans-stopwatch/sitemap.xml
