@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="google-site-verification" content="UDV2Y8alLItYNDuunh6l8XiwbiljzzxK-UGWnWY6biA" />
   <title>Mortgage Calculator — Free Monthly Payment Estimator</title>
-  <meta name="description" content="Free mortgage calculator. Estimate your monthly mortgage payments with principal, interest, taxes, and insurance. Works for any loan amount, rate, and term.">
+  <meta name="description" content="Free mortgage calculator with multi-currency support (USD, GBP, EUR, AUD, CAD, JPY). Estimate monthly payments with principal, interest, taxes, and insurance.">
   <meta name="keywords" content="mortgage calculator, mortgage payment calculator, home loan calculator, monthly payment calculator, home affordability calculator">
   <meta property="og:title" content="Mortgage Calculator — Free Monthly Payment Estimator">
   <meta property="og:description" content="Estimate your monthly mortgage payments. Free online calculator.">
@@ -141,13 +141,24 @@
 
   <div class="tool-card">
     <h2>Enter Loan Details</h2>
+    <div class="row" style="margin-bottom:12px;">
+      <label style="margin:0;white-space:nowrap;">Currency:</label>
+      <select id="currency" style="width:auto;flex:0 1 auto;">
+        <option value="USD">🇺🇸 USD ($)</option>
+        <option value="GBP">🇬🇧 GBP (£)</option>
+        <option value="EUR">🇪🇺 EUR (€)</option>
+        <option value="AUD">🇦🇺 AUD (A$)</option>
+        <option value="CAD">🇨🇦 CAD (C$)</option>
+        <option value="JPY">🇯🇵 JPY (¥)</option>
+      </select>
+    </div>
     <div class="calc-grid">
       <div class="full-width">
-        <label>Home Price ($)</label>
+        <label id="homePriceLabel">Home Price ($)</label>
         <input type="number" id="homePrice" value="300000" min="10000" step="10000">
       </div>
       <div>
-        <label>Down Payment ($)</label>
+        <label id="downPaymentLabel">Down Payment ($)</label>
         <input type="number" id="downPayment" value="60000" min="0" step="5000">
       </div>
       <div>
@@ -265,6 +276,20 @@
   const propertyTax = document.getElementById('propertyTax');
   const insurance = document.getElementById('insurance');
   const pmiRate = document.getElementById('pmiRate');
+  const currencySelect = document.getElementById('currency');
+  const homePriceLabel = document.getElementById('homePriceLabel');
+  const downPaymentLabel = document.getElementById('downPaymentLabel');
+
+  const CURRENCY_SYMBOLS = { USD: '$', GBP: '£', EUR: '€', AUD: 'A$', CAD: 'C$', JPY: '¥' };
+
+  function updateCurrencyLabels() {
+    const sym = CURRENCY_SYMBOLS[currencySelect.value] || '$';
+    homePriceLabel.textContent = `Home Price (${sym})`;
+    downPaymentLabel.textContent = `Down Payment (${sym})`;
+    calculate();
+  }
+
+  currencySelect.addEventListener('change', updateCurrencyLabels);
 
   // Sync down payment $ and %
   downPayment.addEventListener('input', () => {
@@ -294,11 +319,15 @@
   document.getElementById('calcBtn').addEventListener('click', calculate);
 
   function formatCurrency(n) {
-    return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    const sym = CURRENCY_SYMBOLS[currencySelect.value] || '$';
+    const formatted = n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return sym === '¥' ? '¥' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') : sym + formatted;
   }
 
   function formatCurrencyInt(n) {
-    return '$' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    const sym = CURRENCY_SYMBOLS[currencySelect.value] || '$';
+    const formatted = Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return sym === '¥' ? '¥' + formatted : sym + formatted;
   }
 
   function calculate() {
